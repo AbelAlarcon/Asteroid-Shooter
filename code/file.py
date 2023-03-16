@@ -1,5 +1,11 @@
 import pygame, sys
 
+def laser_update(laser_list, speed = 300):
+    for rect in laser_list:
+        rect.y -= speed * dt
+        if rect.bottom < 0:
+            laser_list.remove(rect)
+
 # Inicialize all imported pygame modules
 pygame.init()
 
@@ -20,7 +26,7 @@ ship_rect = ship_surface.get_rect(center = (x_ship,y_ship))
 
 # Load the laser model
 laser_surface = pygame.image.load('../graphics/laser.png').convert_alpha()
-laser_rect = laser_surface.get_rect(midbottom = ship_rect.midtop)
+laser_list = []
 
 # Import text
 font = pygame.font.Font('../graphics/subatomic.ttf',50)
@@ -37,12 +43,15 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN: # 0.5 seconds of delay befere we can shoot again
+            laser_rect = laser_surface.get_rect(midbottom = ship_rect.midtop)
+            laser_list.append(laser_rect)
 
     # Mouse input
     ship_rect.center = pygame.mouse.get_pos()
 
     # -- Update --
-    laser_rect.y -= round(200 * dt)
+    laser_update(laser_list)
 
 
     #  -- Drawing --
@@ -54,11 +63,13 @@ while True:
     display_surface.blit(text_surf,text_rect)
     pygame.draw.rect(display_surface, 'white', text_rect.inflate(30,30), width = 5, border_radius = 5)
     # Display laser
-    display_surface.blit(laser_surface,laser_rect)
-    # 3. Show the frame to the player (update the display surface)
+    for rect in laser_list:
+        display_surface.blit(laser_surface,rect)
+
     # Display ship on the main surface
     display_surface.blit(ship_surface,ship_rect)
 
 
     # Draw the final frame
     pygame.display.update()
+    print(len(laser_list))
