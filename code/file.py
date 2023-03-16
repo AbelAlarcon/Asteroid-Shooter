@@ -6,6 +6,13 @@ def laser_update(laser_list, speed = 300):
         if rect.bottom < 0:
             laser_list.remove(rect)
 
+def display_score():
+    score_text = f'Score:{pygame.time.get_ticks() // 1000}'
+    text_surf = font.render(score_text, True, 'white')
+    text_rect = text_surf.get_rect(midbottom = (WINDOW_WIDTH/2,WINDOWN_HEIGHT - 50))
+    display_surface.blit(text_surf,text_rect)
+    pygame.draw.rect(display_surface, 'white', text_rect.inflate(30,30), width = 5, border_radius = 5)
+
 # Inicialize all imported pygame modules
 pygame.init()
 
@@ -30,9 +37,6 @@ laser_list = []
 
 # Import text
 font = pygame.font.Font('../graphics/subatomic.ttf',50)
-text_surf = font.render('Space', True, 'white')
-text_rect = text_surf.get_rect(midbottom = (WINDOW_WIDTH/2,WINDOWN_HEIGHT - 50))
-
 
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
@@ -52,7 +56,7 @@ while True:
 
     # -- Update --
     laser_update(laser_list)
-
+    print(pygame.time.get_ticks())
 
     #  -- Drawing --
     # Set black main surface
@@ -60,8 +64,7 @@ while True:
     # Show the background
     display_surface.blit(background_surface,(0,0))
     # Display text
-    display_surface.blit(text_surf,text_rect)
-    pygame.draw.rect(display_surface, 'white', text_rect.inflate(30,30), width = 5, border_radius = 5)
+    display_score()
     # Display laser
     for rect in laser_list:
         display_surface.blit(laser_surface,rect)
@@ -72,4 +75,3 @@ while True:
 
     # Draw the final frame
     pygame.display.update()
-    print(len(laser_list))
