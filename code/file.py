@@ -1,4 +1,5 @@
 import pygame, sys
+from random import randint, uniform
 
 def laser_update(laser_list, speed = 300):
     for rect in laser_list:
@@ -19,6 +20,14 @@ def laser_timer(can_shoot,duration = 500):
         if current_time - shoot_time > duration:
             can_shoot = True
     return can_shoot
+
+def meteor_update(meteor_list, speed = 300):
+    for meteor_tuple in meteor_list:
+        direction = meteor_tuple[1]
+        meteor_rect = meteor_tuple[0]
+        meteor_rect.center += direction * speed * dt
+        if meteor_rect .top > WINDOWN_HEIGHT:
+            meteor_list.remove(meteor_tuple)
 
 # Inicialize all imported pygame modules
 pygame.init()
@@ -49,6 +58,14 @@ shoot_time = None
 # Import text
 font = pygame.font.Font('../graphics/subatomic.ttf',50)
 
+# Load the meteor model
+meteor_surfece = pygame.image.load('../graphics/meteor.png').convert_alpha()
+meteor_list = []
+
+# Meteor time
+meteor_timer = pygame.event.custom_type()
+pygame.time.set_timer(meteor_timer,400)
+
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
 
@@ -66,13 +83,25 @@ while True:
             # Timer
             can_shoot = False
             shoot_time = pygame.time.get_ticks()
+        if event.type == meteor_timer:
+            # Random postion
+            x_pos = randint(-100,WINDOW_WIDTH +100)
+            y_pos = randint(-100,-50)
+            # Creating a rect
+            meteor_rect = meteor_surfece.get_rect(center = (x_pos,y_pos))
+            # create a random direction
+            direction = pygame.math.Vector2(uniform(-0.5,0.5),1)
+            
+            meteor_list.append((meteor_rect,direction))
 
     # Mouse input
     ship_rect.center = pygame.mouse.get_pos()
 
     # -- Update --
     laser_update(laser_list)
-    can_shoot = laser_timer(can_shoot,2000)
+    can_shoot = laser_timer(can_shoot,500)
+
+    meteor_update(meteor_list)
 
     #  -- Drawing --
     # Set black main surface
@@ -84,6 +113,9 @@ while True:
     # Display laser
     for rect in laser_list:
         display_surface.blit(laser_surface,rect)
+    # Display meteor
+    for meteor_tuple in meteor_list:
+        display_surface.blit(meteor_surfece,meteor_tuple[0])
 
     # Display ship on the main surface
     display_surface.blit(ship_surface,ship_rect)
