@@ -66,6 +66,11 @@ meteor_list = []
 meteor_timer = pygame.event.custom_type()
 pygame.time.set_timer(meteor_timer,400)
 
+# Import sounds
+laser_sound = pygame.mixer.Sound('../sounds/laser.ogg')
+explosion_sound = pygame.mixer.Sound('../sounds/explosion.wav')
+background_music = pygame.mixer.Sound('../sounds/music.wav')
+background_music.play(loops = -1)
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
 
@@ -83,6 +88,10 @@ while True:
             # Timer
             can_shoot = False
             shoot_time = pygame.time.get_ticks()
+            
+            # Play laser sound
+            laser_sound.play()
+
         if event.type == meteor_timer:
             # Random postion
             x_pos = randint(-100,WINDOW_WIDTH +100)
@@ -99,7 +108,7 @@ while True:
 
     # -- Update --
     laser_update(laser_list)
-    can_shoot = laser_timer(can_shoot,500)
+    can_shoot = laser_timer(can_shoot,300)
     meteor_update(meteor_list)
 
     # Collisions
@@ -116,6 +125,8 @@ while True:
             if laser_rect.colliderect(meteor_rect):
                 meteor_list.remove(meteor_tuple)
                 laser_list.remove(laser_rect)
+                # Play explosion sound
+                explosion_sound.play()
 
 
     #  -- Drawing --
