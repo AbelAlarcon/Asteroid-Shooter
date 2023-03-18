@@ -49,8 +49,22 @@ class Laser(pygame.sprite.Sprite):
     def update(self):
         self.pos += self.direction * self.speed *dt
         self.rect.topleft = (round(self.pos.x),round(self.pos.y))
-        #self.rect.y -= 10
 
+# Meteor class
+class Meteor(pygame.sprite.Sprite):
+    def __init__(self,groups,pos):
+        super().__init__(groups)
+        self.image = pygame.image.load('../graphics/meteor.png').convert_alpha()
+        self.rect = self.image.get_rect(center = pos)
+
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(uniform(-1,1),1)
+        self.speed = randint(200,400)
+        
+    def update(self):
+        self.pos += self.direction * self.speed *dt
+        self.rect.topleft = (round(self.pos.x),round(self.pos.y))
+        
 
 # Inicialize all imported pygame modules
 pygame.init()
@@ -66,8 +80,14 @@ background_surf = pygame.image.load('../graphics/background.png').convert()
 # Sprite groups
 spaceship_group = pygame.sprite.GroupSingle()
 laser_group = pygame.sprite.Group()
+meteor_group = pygame.sprite.Group()
+
 # Ship sprite creation
 ship = Ship(spaceship_group)
+
+# Meteor timer
+meteor_timer = pygame.event.custom_type()
+pygame.time.set_timer(meteor_timer,300)
 
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
@@ -82,10 +102,16 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        
+        # Meteor spawn
+        if event.type == meteor_timer:
+            meteor_y_pos = randint(-150,-50)
+            meteor_x_pos = randint(-100,WINDOW_WIDTH + 100)
+            meteor = Meteor(meteor_group,(meteor_x_pos,meteor_y_pos))
+
     # -- Update --
     spaceship_group.update()
     laser_group.update()
+    meteor_group.update()
 
     # -- Drawing --
     # Show the background
@@ -94,6 +120,7 @@ while True:
     spaceship_group.draw(display_surface)
     # Show the laser
     laser_group.draw(display_surface)
-    #
+    # Show the meteor
+    meteor_group.draw(display_surface)
 
     pygame.display.update()
