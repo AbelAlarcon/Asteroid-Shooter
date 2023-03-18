@@ -25,9 +25,10 @@ class Ship(pygame.sprite.Sprite):
 
     def laser_shoot(self):
         if pygame.mouse.get_pressed()[0] and self.can_shoot:
-            print('shoot laser')
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
+
+            Laser(laser_group,self.rect.midtop)
 
     def update(self):
         self.laser_timer()
@@ -40,6 +41,15 @@ class Laser(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = pygame.image.load('../graphics/laser.png').convert_alpha()
         self.rect = self.image.get_rect(midbottom = pos)
+
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(0,-1)
+        self.speed = 600
+
+    def update(self):
+        self.pos += self.direction * self.speed *dt
+        self.rect.topleft = (round(self.pos.x),round(self.pos.y))
+        #self.rect.y -= 10
 
 
 # Inicialize all imported pygame modules
@@ -58,7 +68,6 @@ spaceship_group = pygame.sprite.GroupSingle()
 laser_group = pygame.sprite.Group()
 # Ship sprite creation
 ship = Ship(spaceship_group)
-laser = Laser(laser_group,(300,300))
 
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
@@ -66,8 +75,7 @@ clock = pygame.time.Clock()
 # Game loop
 while True:
     # Delta time
-    dt = clock.tick(120) / 1000
-    
+    dt = clock.tick() / 1000
     # Events loop
     for event in pygame.event.get():
         # Close event
@@ -77,6 +85,8 @@ while True:
         
     # -- Update --
     spaceship_group.update()
+    laser_group.update()
+
     # -- Drawing --
     # Show the background
     display_surface.blit(background_surf, (0,0))
@@ -84,5 +94,6 @@ while True:
     spaceship_group.draw(display_surface)
     # Show the laser
     laser_group.draw(display_surface)
+    #
 
     pygame.display.update()
