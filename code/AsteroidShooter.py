@@ -9,6 +9,9 @@ class Ship(pygame.sprite.Sprite):
         self.image = pygame.image.load('../graphics/ship.png').convert_alpha()# 2. We need a surface -> image
         self.rect = self.image.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
 
+        # Mask
+        self.mask = pygame.mask.from_surface(self.image)
+
         # Timer
         self.can_shoot = True
         self.shoot_time = None
@@ -31,7 +34,7 @@ class Ship(pygame.sprite.Sprite):
             Laser(laser_group,self.rect.midtop)
 
     def meteor_collision(self):
-        if pygame.sprite.spritecollide(self,meteor_group,True):
+        if pygame.sprite.spritecollide(self,meteor_group,True,pygame.sprite.collide_mask):
             pygame.quit()
             sys.exit()
 
@@ -48,12 +51,15 @@ class Laser(pygame.sprite.Sprite):
         self.image = pygame.image.load('../graphics/laser.png').convert_alpha()
         self.rect = self.image.get_rect(midbottom = pos)
 
+        # Mask
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0,-1)
         self.speed = 600
 
     def meteor_collision(self):
-        if pygame.sprite.spritecollide(self,meteor_group, True):
+        if pygame.sprite.spritecollide(self,meteor_group, True,pygame.sprite.collide_mask):
             self.kill()
 
     def update(self):
@@ -78,6 +84,9 @@ class Meteor(pygame.sprite.Sprite):
         self.image = self.scaled_surf
         self.rect = self.image.get_rect(center = pos)
 
+        # Mask
+        self.mask = pygame.mask.from_surface(self.image)
+
 
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(uniform(-1,1),1)
@@ -92,6 +101,7 @@ class Meteor(pygame.sprite.Sprite):
         rotate_surf = pygame.transform.rotozoom(self.scaled_surf,self.rotation,1)
         self.image = rotate_surf
         self.rect = self.image.get_rect(center = self.rect.center)
+        self.mask = pygame.mask.from_surface(self.image)
         
     def update(self):
         self.pos += self.direction * self.speed *dt
