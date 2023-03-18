@@ -15,6 +15,9 @@ class Ship(pygame.sprite.Sprite):
         # Timer
         self.can_shoot = True
         self.shoot_time = None
+
+        # Sound
+        self.laser_sound = pygame.mixer.Sound('../sounds/laser.ogg')
     
     def laser_timer(self):
         if not self.can_shoot:
@@ -32,6 +35,8 @@ class Ship(pygame.sprite.Sprite):
             self.shoot_time = pygame.time.get_ticks()
 
             Laser(laser_group,self.rect.midtop)
+            self.laser_sound.play()
+            
 
     def meteor_collision(self):
         if pygame.sprite.spritecollide(self,meteor_group,True,pygame.sprite.collide_mask):
@@ -57,10 +62,14 @@ class Laser(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0,-1)
         self.speed = 600
+    
+        # Sound
+        self.explosion_sound = pygame.mixer.Sound('../sounds/explosion.wav')
 
     def meteor_collision(self):
         if pygame.sprite.spritecollide(self,meteor_group, True,pygame.sprite.collide_mask):
             self.kill()
+            self.explosion_sound.play()
 
     def update(self):
         self.pos += self.direction * self.speed *dt
@@ -86,7 +95,6 @@ class Meteor(pygame.sprite.Sprite):
 
         # Mask
         self.mask = pygame.mask.from_surface(self.image)
-
 
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(uniform(-1,1),1)
@@ -151,6 +159,11 @@ score = Score()
 # Meteor timer
 meteor_timer = pygame.event.custom_type()
 pygame.time.set_timer(meteor_timer,300)
+
+# Import sounds
+background_music = pygame.mixer.Sound('../sounds/music.wav')
+background_music.play(loops = -1)
+background_music.set_volume(0.4)
 
 # Clock, I'll use to set a limit framerate
 clock = pygame.time.Clock()
